@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SAS - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #060818;
+            --card: #0d1225;
+            --card2: #111828;
+            --accent: #4f6ef7;
+            --accent2: #7c3aed;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #e8eaf6;
+            --muted: #6b7280;
+            --border: rgba(255,255,255,0.07);
+            --input-bg: rgba(255,255,255,0.04);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: linear-gradient(rgba(79,110,247,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(79,110,247,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none; z-index: 0;
+        }
+        .orb { position: fixed; border-radius: 50%; filter: blur(100px); opacity: 0.1; pointer-events: none; }
+        .orb-1 { width: 500px; height: 500px; background: var(--accent); top: -200px; right: -200px; }
+        .orb-2 { width: 400px; height: 400px; background: var(--accent2); bottom: -100px; left: -100px; }
+
+        /* Top Nav */
+        .navbar {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(6,8,24,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            animation: fadeDown 0.5s ease forwards;
+        }
+        @keyframes fadeDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+        .nav-brand { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800; }
+        .nav-brand span { background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+        .nav-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700;
+        }
+        .logout-btn {
+            background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
+            color: #f87171; padding: 7px 14px; border-radius: 8px;
+            font-size: 0.8rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .logout-btn:hover { background: rgba(239,68,68,0.2); }
+
+        /* Main content */
+        .content { position: relative; z-index: 1; padding: 20px; max-width: 700px; margin: 0 auto; }
+
+        /* Welcome Banner */
+        .welcome-banner {
+            background: linear-gradient(135deg, rgba(79,110,247,0.15), rgba(124,58,237,0.15));
+            border: 1px solid rgba(79,110,247,0.2);
+            border-radius: 20px; padding: 24px;
+            margin-bottom: 20px;
+            display: flex; align-items: center; gap: 16px;
+            animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.1s forwards; opacity: 0;
+        }
+        @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        .welcome-avatar {
+            width: 56px; height: 56px; border-radius: 16px; flex-shrink: 0;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+        }
+        .welcome-text h2 { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 700; }
+        .welcome-text p { color: var(--muted); font-size: 0.82rem; margin-top: 3px; }
+        .welcome-text .reg-badge {
+            display: inline-block; margin-top: 6px;
+            background: rgba(79,110,247,0.12); border: 1px solid rgba(79,110,247,0.2);
+            color: var(--accent); font-size: 0.75rem; padding: 2px 10px; border-radius: 100px;
+        }
+
+        /* Stats row */
+        .stats-row {
+            display: grid; grid-template-columns: repeat(3,1fr); gap: 12px;
+            margin-bottom: 20px;
+            animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.2s forwards; opacity: 0;
+        }
+        .stat-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 16px 12px; text-align: center;
+        }
+        .stat-card .stat-icon { font-size: 1.5rem; margin-bottom: 6px; }
+        .stat-card .stat-value { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--text); }
+        .stat-card .stat-label { font-size: 0.7rem; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Section */
+        .section-title {
+            font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 700;
+            color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px;
+            margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+        }
+        .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        /* Submit Card */
+        .submit-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 20px; padding: 24px; margin-bottom: 20px;
+            animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.3s forwards; opacity: 0;
+        }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 11px; font-weight: 500; color: var(--muted); margin-bottom: 7px; text-transform: uppercase; letter-spacing: 0.8px; }
+        .form-group select, .form-group input[type="file"] {
+            width: 100%; padding: 13px 16px;
+            background: var(--input-bg); border: 1px solid var(--border);
+            border-radius: 12px; color: var(--text);
+            font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+            outline: none; transition: all 0.3s; -webkit-appearance: none;
+        }
+        .form-group select option { background: #1a2035; }
+        .form-group select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,110,247,0.1); }
+
+        /* File drop area */
+        .file-drop {
+            border: 2px dashed var(--border); border-radius: 12px;
+            padding: 24px; text-align: center; cursor: pointer;
+            transition: all 0.3s; background: var(--input-bg);
+        }
+        .file-drop:hover, .file-drop.active { border-color: var(--accent); background: rgba(79,110,247,0.05); }
+        .file-drop .drop-icon { font-size: 2rem; margin-bottom: 8px; }
+        .file-drop p { font-size: 0.85rem; color: var(--muted); }
+        .file-drop .file-name { color: var(--accent); font-size: 0.85rem; margin-top: 6px; font-weight: 500; }
+        #fileInput { display: none; }
+
+        .submit-btn {
+            width: 100%; padding: 15px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border: none; border-radius: 12px; color: white;
+            font-family: 'Syne', sans-serif; font-size: 0.95rem;
+            font-weight: 700; letter-spacing: 1px; cursor: pointer;
+            transition: all 0.3s; margin-top: 4px;
+        }
+        .submit-btn:active { transform: scale(0.98); }
+        .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .message { margin-top: 12px; padding: 12px 16px; border-radius: 10px; font-size: 0.85rem; text-align: center; display: none; }
+        .message.error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); color: #f87171; display: block; }
+        .message.success { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); color: #4ade80; display: block; }
+
+        /* Progress Card */
+        .progress-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 20px; padding: 24px; margin-bottom: 20px;
+            animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.4s forwards; opacity: 0;
+        }
+        .grade-item { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+        .grade-item:last-child { margin-bottom: 0; }
+        .grade-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+        .grade-info { flex: 1; }
+        .grade-info .subject { font-size: 0.88rem; font-weight: 500; color: var(--text); }
+        .grade-info .date { font-size: 0.75rem; color: var(--muted); }
+        .grade-bar-wrap { margin-top: 5px; background: var(--border); border-radius: 4px; height: 4px; overflow: hidden; }
+        .grade-bar { height: 100%; border-radius: 4px; transition: width 1s cubic-bezier(0.16,1,0.3,1); }
+        .grade-score { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; flex-shrink: 0; }
+
+        /* Bottom nav */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(13,18,37,0.95); backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            display: flex; padding: 10px 0 6px;
+            z-index: 100;
+        }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px; }
+        .nav-item .nav-icon { font-size: 1.3rem; }
+        .nav-item .nav-label { font-size: 0.65rem; color: var(--muted); }
+        .nav-item.active .nav-label { color: var(--accent); }
+
+        .content { padding-bottom: 80px; }
+        .spinner { display: inline-block; width: 15px; height: 15px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 8px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-brand"><span>SAS</span></div>
+        <div class="nav-right">
+            <div class="nav-avatar" id="navAvatar">?</div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <div class="content">
+
+        <!-- Welcome -->
+        <div class="welcome-banner">
+            <div class="welcome-avatar">🎓</div>
+            <div class="welcome-text">
+                <h2>Hello, <span id="displayName">Student</span>!</h2>
+                <p>Ready to submit your assignments today?</p>
+                <span class="reg-badge" id="displayReg"></span>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon">📤</div>
+                <div class="stat-value">3</div>
+                <div class="stat-label">Submitted</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value">2</div>
+                <div class="stat-label">Graded</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-value">1</div>
+                <div class="stat-label">Pending</div>
+            </div>
+        </div>
+
+        <!-- Submit Section -->
+        <div class="section-title">Submit Assignment</div>
+        <div class="submit-card">
+            <div class="form-group">
+                <label>Course / Subject</label>
+                <select id="somo">
+                    <option value="">— Select Subject —</option>
+                    <option value="Mobile App Development">📱 Mobile App Development</option>
+                    <option value="Database Management">🗄️ Database Management</option>
+                    <option value="Network Security">🔐 Network Security</option>
+                    <option value="Operating Systems">💻 Operating Systems</option>
+                    <option value="Software Engineering">⚙️ Software Engineering</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Upload File</label>
+                <div class="file-drop" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                    <div class="drop-icon">📎</div>
+                    <p>Tap to choose a file</p>
+                    <p style="font-size:0.75rem; margin-top:4px;">PDF, DOC, DOCX, ZIP supported</p>
+                    <div class="file-name" id="fileName"></div>
+                </div>
+                <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.zip,.txt" onchange="fileSelected(this)">
+            </div>
+
+            <button class="submit-btn" id="submitBtn" onclick="tumaKazi()">SUBMIT ASSIGNMENT</button>
+            <div class="message" id="submitMsg"></div>
+        </div>
+
+        <!-- Progress Section -->
+        <div class="section-title">Recent Grades</div>
+        <div class="progress-card">
+            <div class="grade-item">
+                <div class="grade-icon" style="background:rgba(79,110,247,0.15);">📱</div>
+                <div class="grade-info">
+                    <div class="subject">Mobile App Development</div>
+                    <div class="date">Submitted: Feb 20, 2026</div>
+                    <div class="grade-bar-wrap"><div class="grade-bar" style="width:90%; background:linear-gradient(90deg,#4f6ef7,#7c3aed);"></div></div>
+                </div>
+                <div class="grade-score" style="color:#4f6ef7;">18/20</div>
+            </div>
+            <div class="grade-item">
+                <div class="grade-icon" style="background:rgba(16,185,129,0.15);">🗄️</div>
+                <div class="grade-info">
+                    <div class="subject">Database Management</div>
+                    <div class="date">Submitted: Feb 14, 2026</div>
+                    <div class="grade-bar-wrap"><div class="grade-bar" style="width:75%; background:linear-gradient(90deg,#10b981,#059669);"></div></div>
+                </div>
+                <div class="grade-score" style="color:#10b981;">15/20</div>
+            </div>
+            <div class="grade-item">
+                <div class="grade-icon" style="background:rgba(245,158,11,0.15);">🔐</div>
+                <div class="grade-info">
+                    <div class="subject">Network Security</div>
+                    <div class="date">Submitted: Jan 30, 2026</div>
+                    <div class="grade-bar-wrap"><div class="grade-bar" style="width:0%; background:linear-gradient(90deg,#f59e0b,#d97706);" data-target="85"></div></div>
+                </div>
+                <div class="grade-score" style="color:#f59e0b;">⏳</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+        <div class="nav-item active">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">Home</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">📚</div>
+            <div class="nav-label">Courses</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">📊</div>
+            <div class="nav-label">Grades</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">👤</div>
+            <div class="nav-label">Profile</div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const name = localStorage.getItem('user_name');
+            const reg  = localStorage.getItem('user_reg');
+
+            if (!reg) { window.location.href = 'index.html'; return; }
+
+            document.getElementById('displayName').textContent = name || 'Student';
+            document.getElementById('displayReg').textContent  = reg;
+            document.getElementById('navAvatar').textContent   = (name || 'S')[0].toUpperCase();
+        };
+
+        function fileSelected(input) {
+            const file = input.files[0];
+            if (file) {
+                document.getElementById('fileName').textContent = '📄 ' + file.name;
+                document.getElementById('dropZone').classList.add('active');
+            }
+        }
+
+        function showMsg(text, type) {
+            const el = document.getElementById('submitMsg');
+            el.textContent = text;
+            el.className = 'message ' + type;
+        }
+
+        async function tumaKazi() {
+            const somo = document.getElementById('somo').value;
+            const file = document.getElementById('fileInput').files[0];
+            const btn  = document.getElementById('submitBtn');
+
+            if (!somo) { showMsg('⚠️ Please select a subject!', 'error'); return; }
+            if (!file) { showMsg('⚠️ Please choose a file to upload!', 'error'); return; }
+
+            btn.innerHTML = '<span class="spinner"></span>Submitting...';
+            btn.disabled = true;
+
+            // Simulate submission (replace with real API call later)
+            await new Promise(r => setTimeout(r, 1500));
+
+            showMsg(`✅ "${somo}" submitted successfully!`, 'success');
+            btn.innerHTML = 'SUBMIT ASSIGNMENT';
+            btn.disabled = false;
+
+            // Reset form
+            document.getElementById('somo').value = '';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileName').textContent = '';
+            document.getElementById('dropZone').classList.remove('active');
+        }
+
+        function logout() {
+            localStorage.removeItem('user_session');
+            localStorage.removeItem('user_name');
+            localStorage.removeItem('user_reg');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
