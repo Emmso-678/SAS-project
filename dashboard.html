@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAS - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { background: #f0f2f5; display: block; padding: 10px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; }
+        .assignment-box { background: #f9f9f9; padding: 15px; border-radius: 8px; border-left: 5px solid #007bff; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="color: #007bff;">SAS Dashboard</h2>
+        <button onclick="logout()" style="background:#dc3545; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">Logout</button>
+    </div>
+    
+    <p><strong>Student:</strong> <span id="displayName"></span> (<span id="displayReg"></span>)</p>
+    <hr>
+
+    <div class="assignment-box" style="background: #eef7ff;">
+        <h4>📤 Submit New Work</h4>
+        <label>Select Course/Subject:</label>
+        <select id="somo">
+            <option value="">-- Select Subject --</option>
+            <option value="Mobile App Development">Mobile App Development</option>
+            <option value="Database Management">Database Management</option>
+            <option value="Network Security">Network Security</option>
+            <option value="Operating Systems">Operating Systems</option>
+        </select>
+
+        <label>Upload File (Notes/Assignment):</label>
+        <input type="file" id="failiKazi">
+        <button onclick="tumaKazi()" style="background: #28a745; color:white; border:none; width:100%; padding:12px; border-radius:6px; margin-top:10px; font-weight:bold; cursor:pointer;">SUBMIT NOW</button>
+    </div>
+
+    <div class="assignment-box">
+        <h4>📊 Your Progress</h4>
+        <p>Last Updated: <span id="muda"></span></p>
+        <p>Latest Grade: <strong>18/20 (Mobile App)</strong></p>
+    </div>
+</div>
+
+<script>
+    window.onload = function() {
+        const name = localStorage.getItem("user_name");
+        const reg = localStorage.getItem("user_reg");
+
+        if (!reg) {
+            window.location.href = "index.html";
+        } else {
+            document.getElementById('displayName').innerText = name;
+            document.getElementById('displayReg').innerText = reg;
+            document.getElementById('muda').innerText = new Date().toLocaleString();
+        }
+    };
+
+    function tumaKazi() {
+        const somo = document.getElementById('somo').value;
+        const file = document.getElementById('failiKazi').files[0];
+
+        if(somo === "" || !file) {
+            alert("Please select a subject and choose a file!");
+        } else {
+            alert("Success! Assignment for " + somo + " has been submitted.");
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem("user_session");
+        window.location.href = "index.html";
+    }
+</script>
+</body>
+</html>
