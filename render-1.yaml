@@ -1,0 +1,12 @@
+# Exported from Render on 2026-03-02T14:55:33Z
+version: "1"
+services:
+- type: web
+  name: SAS _project
+  runtime: node
+  repo: https://github.com/Emmso-678/SAS-project
+  plan: free
+  region: oregon
+  buildCommand: npm install
+  startCommand: node server.js
+  autoDeployTrigger: commit
